@@ -63,6 +63,9 @@ public final class DecentHolograms {
         Settings.reload();
         Lang.reload();
 
+        plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "velocity:player_command");
+        plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
+
         this.ticker = new Ticker();
         this.hologramManager = new HologramManager(this);
         this.commandManager = new CommandManager();

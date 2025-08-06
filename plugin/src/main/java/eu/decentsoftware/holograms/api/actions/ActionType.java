@@ -74,6 +74,47 @@ public abstract class ActionType {
         }
     };
 
+    public static final ActionType PROXY_COMMAND = new ActionType("PROXY_COMMAND") {
+        private final int MAX_COMMAND_LENGTH = 256;
+
+        @Override
+        public boolean execute(Player player, String... args) {
+            if (player == null || !player.isOnline()) {
+                return false;
+            }
+            // if (!player.hasPermission("decentholograms.proxycommand")) {
+            //     player.sendMessage(org.bukkit.ChatColor.RED + "No permission to execute proxy commands");
+            //     return false;
+            // }
+            String command = String.join(" ", args).trim();
+            if (command.isEmpty()) {
+                return false;
+            }
+            if (!command.startsWith("/")) {
+                command = "/" + command;
+            }
+            if (command.length() > MAX_COMMAND_LENGTH) {
+                DECENT_HOLOGRAMS.getPlugin().getLogger().warning("Proxy command too long: " + command);
+                return false;
+            }
+            try {
+                byte[] commandBytes = command.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                java.nio.ByteBuffer buffer = java.nio.ByteBuffer.allocate(4 + commandBytes.length);
+                buffer.putInt(commandBytes.length);
+                buffer.put(commandBytes);
+                player.sendPluginMessage(
+                    DECENT_HOLOGRAMS.getPlugin(),
+                    "velocity:player_command",
+                    buffer.array()
+                );
+                return true;
+            } catch (Exception e) {
+                DECENT_HOLOGRAMS.getPlugin().getLogger().log(java.util.logging.Level.SEVERE, "Failed to send Velocity command", e);
+                return false;
+            }
+        }
+    };
+
     public static final ActionType CONSOLE = new ActionType("CONSOLE") {
         @Override
         public boolean execute(Player player, String... args) {
